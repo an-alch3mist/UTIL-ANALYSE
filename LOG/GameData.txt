@@ -1,0 +1,54 @@
+{
+    "ACTION_MAP": [
+        {
+            "name": "character",
+            "ACTION": [
+                {
+                    "name": "jump",
+                    "BINDING": [
+                        {
+                            "name": "space",
+                            "keyCode": 32
+                        },
+                        {
+                            "name": "j",
+                            "keyCode": 106
+                        }
+                    ]
+                },
+                {
+                    "name": "shoot",
+                    "BINDING": [
+                        {
+                            "name": "s",
+                            "keyCode": 115
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "car",
+            "ACTION": [
+                {
+                    "name": "brake",
+                    "BINDING": [
+                        {
+                            "name": "space",
+                            "keyCode": 32
+                        }
+                    ]
+                },
+                {
+                    "name": "shoot",
+                    "BINDING": [
+                        {
+                            "name": "s",
+                            "keyCode": 115
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
