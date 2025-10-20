@@ -68,6 +68,17 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "3dd382c3-36a6-4564-be2b-dfb6411e1810",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "shoot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "2D Vector",
                     "id": "b68532e2-387e-4b92-9175-74abe9e78c96",
                     "path": "2DVector(mode=1)",

@@ -5,7 +5,7 @@ using UnityEngine;
 using SPACE_UTIL;
 
 // must be applied at beginning of game to each characters, vehicle, etc anything that has keyBindings
-public class DEBUG_CheckKeyRebindPlayer : MonoBehaviour
+public class DEBUG_IAEventsController : MonoBehaviour
 {
 	private void Awake()
 	{

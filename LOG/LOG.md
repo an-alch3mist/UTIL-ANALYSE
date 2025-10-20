@@ -1,27 +1,42 @@
-# Before Override >>
+# LOG.md created, perform LOG.SaveLog(str, format) to append text here:
+
+  Binding[0]: <Keyboard>/space
+
+  Binding[1]: 
+
+  Binding[0]: <Mouse>/leftButton
+
+  Binding[1]: 
+
+  Binding[0]: COMPOSITE '2D Vector'
+
+# << === SIMPLE ITERATION ===
+
+# Rebinding jump >>
 
 
-```json
+Original binding: <Keyboard>/space
 
-```
-
-Original binding: 
-
-# << Before Override
-
-# Interactive After New Rebinding >>
-
-
-.OnComplete() NewBinding: <Keyboard>/h
-
-# << Interactive After New Rebinding
+.OnComplete() NewBinding: <Keyboard>/a
 
 # After Binding override JSON >>
 
 
 ```json
-{"bindings":[{"action":"character/jump","id":"7f6809ef-8604-43f4-a20a-da8399c42553","path":"<Keyboard>/h","interactions":"null","processors":"null"}]}
+{"bindings":[{"action":"character/jump","id":"7867cf55-791d-49e1-ab54-29eeae8bc9aa","path":"<Keyboard>/a","interactions":"null","processors":"null"}]}
 ```
 
-# << After Binding overide JSON
+# << After Binding override JSON
+
+  Binding[0]: <Keyboard>/z
+
+  Binding[1]: 
+
+  Binding[0]: <Mouse>/leftButton
+
+  Binding[1]: 
+
+  Binding[0]: COMPOSITE '2D Vector'
+
+# << === SIMPLE ITERATION ===
 

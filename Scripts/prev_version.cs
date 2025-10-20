@@ -1,4 +1,6 @@
-﻿using System;
+﻿/*
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,12 +10,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 //
+
 using SPACE_UTIL;
 
-namespace SPACE_CHECK
-{
-	public class DEBUG_Check : MonoBehaviour
+
+	// prototype -> it works
+	public class DEBUG_Check_InputSystemRebinding_prev : MonoBehaviour
 	{
 		private void Awake()
 		{
@@ -23,9 +27,6 @@ namespace SPACE_CHECK
 		private void Start()
 		{
 			PlayerInputActions IA = GameStore.PlayerIA;
-			// Load from saved JSON Data >>
-			// IA.LoadBindingOverridesFromJson(LOG.LoadGame);
-			// << Load from saved JSON Data
 		}
 
 		private void Update()
@@ -37,16 +38,10 @@ namespace SPACE_CHECK
 			}
 		}
 
-		[SerializeField] InputActionAsset _IAAsset;
-
-		[Header("just to log")]
-		[SerializeField] PlayerStats _playerStats;
 		// custom key rebind
 		IEnumerator STIMULATE()
 		{
 			yield return null;
-
-			// it works
 			yield return RebindingSystemAnalysis();
 			yield break;
 		}
@@ -55,10 +50,6 @@ namespace SPACE_CHECK
 		{
 			#region rebind system -> works
 			PlayerInputActions IA = GameStore.PlayerIA;
-			// Load from saved JSON Data >>
-			// IA.LoadBindingOverridesFromJson(/* load from saved game data */);
-			// << Load from saved JSON Data
-
 			var jumpAction = IA.character.jump;
 			int bindingIndex = 1;
 
@@ -153,7 +144,6 @@ namespace SPACE_CHECK
 		[SerializeField] Transform _contentScrollViewTr;
 		[SerializeField] GameObject _templateRowPrefab;
 		[SerializeField] GameObject _buttonPrefab;
-
 		void UIIAMapIteration(InputActionMap actionMap)
 		{
 			// LOG.H("=== SIMPLE ITERATION ===");
@@ -208,44 +198,6 @@ namespace SPACE_CHECK
 			LOG.HEnd("=== SIMPLE ITERATION ===");
 		}
 
-
-		#region Check LOG(SaveLog(), LoadGame<>(), LoadGame(), SaveGame())
-		private void Check_LOG()
-		{
-			// 0. LOG.SaveLog(str, format) // where str: T.ToJson() or T.ToString() or IEnumerable<T>.ToTable() if  IEnumerable<T>
-			List<PlayerStats> STATS = new List<PlayerStats>()
-			{
-				new PlayerStats(),
-				new PlayerStats(),
-				new PlayerStats(),
-				new PlayerStats(),
-				new PlayerStats(),
-			};
-			//
-			LOG.AddLog(STATS.ToTable(toString: true, name: "LIST<>")); // Checked
-
-			// 1. LOG.SaveGame(enum, T.ToJson(pretify: true))
-			// LOG_SEEK.SaveGameData(GameDataType.playerStats, new PlayerStats() { playerName = "somthng", level = 10 }.ToJson(pretify: true)); // Checked
-			// LOG.SaveGameData(GameDataType.playerStats, new PlayerStats() { playerName = "somthng", level = (int)1e7 }.ToJson(pretify: true)); // Checked
-
-			// 2. LOG.LoadGame<T>(enum)
-			// PlayerStats playerStats = LOG_SEEK.LoadGameData<PlayerStats>(GameDataType.playerStats); // Checked
-			// PlayerStats playerStats = LOG.LoadGameData<PlayerStats>(GameDataType.playerStats); // Checked
-			// this._playerStats = playerStats;
-
-			// 3. LOG.LoadGame(enum)
-			// LOG_SEEK.SaveLog(LOG_SEEK.LoadGameData(GameDataType.playerStats), "json"); // Checked
-			LOG.AddLog(LOG.LoadGameData(GameDataType.playerStats), "json"); // checked
-
-
-			// Data_0 data_0 = new Data_0() { i = 100 };
-			// LOG.SaveGameData(GameDataType.playerStats, data_0.ToJson());
-			// string data_0__json = LOG.LoadGameData(GameDataType.playerStats);
-			// Debug.Log(C.FromJson<Data_0>(data_0__json));
-
-			// this.LOG_SEEK_CHECK();
-		} 
-		#endregion
 	}
 
-}
+*/
