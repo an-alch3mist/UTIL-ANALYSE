@@ -45,6 +45,7 @@ note: no 2 action can have same keyBindings
 - key rebind row
 - keybind (press any key) pop-up
 
-
 # TODO
 save the keybind 
+
+![Example](https://user-images.githubusercontent.com/1879136/73363560-ef6b0880-42e3-11ea-8b25-de885166a3b0.png)

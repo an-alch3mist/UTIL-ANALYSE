@@ -10,11 +10,13 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using SPACE_UTIL;
+using SPACE_SYNTAX;
 
 namespace SPACE_CHECK
 {
 	public class DEBUG_Check_InputSystemRebinding : MonoBehaviour
 	{
+		PlayerInputActions IA;
 		// Track the active rebinding operation and button
 		private InputActionRebindingExtensions.RebindingOperation activeRebindingOperation;
 		private Button activeRebindingButton;
@@ -25,31 +27,35 @@ namespace SPACE_CHECK
 		{
 			"<Keyboard>/escape",
 			"<Keyboard>/backspace",
-			"<Keyboard>/delete"
+			"<Keyboard>/delete",
 		};
 
 		private void Awake()
 		{
-			Debug.Log(C.method("Awake", this, "white"));
+			// Debug.Log(C.method("Awake", this, "white"));
 		}
 
-		private void Start()
+		private void OnEnable()
 		{
-			// Hook up reset and save buttons
-			if (_resetBinding != null)
-			{
-				_resetBinding.onClick.AddListener(ResetAllBindingsToDefault);
-			}
+			Debug.Log(C.method("OnEnable", this, "white"));
 
-			if (_saveBinding != null)
-			{
-				_saveBinding.onClick.AddListener(SaveBindings);
-			}
+			// playerIA from GameStore
+			this.IA = GameStore.playerIA;
 
 			// start of rebinding UI initialization and routine
 			StopAllCoroutines();
 			CancelActiveRebinding();
 			StartCoroutine(STIMULATE());
+
+			// Hook up reset and save buttons
+			if (this._resetBinding != null)
+				_resetBinding.onClick.AddListener(ResetAllBindingsToDefault);
+
+			if (this._saveBinding != null)
+				_saveBinding.onClick.AddListener(SaveBindings);
+
+			if (this._closeBtn != null)
+				_closeBtn.onClick.AddListener(() => { this.gameObject.SetActive(false); });
 		}
 
 		private void Update()
@@ -57,6 +63,7 @@ namespace SPACE_CHECK
 			if (INPUT.M.InstantDown(1))
 			{
 				// the start of routine
+				// started from Start() [UnityLifeCycle]
 			}
 		}
 
@@ -95,81 +102,103 @@ namespace SPACE_CHECK
 			yield break;
 		}
 
-		IEnumerator RebindingSystemAnalysis()
-		{
-			yield return null;
-			PlayerInputActions IA = GameStore.playerIA;
-			this.UIIAMapIteration(IA.character.Get());
-		}
-
 		[SerializeField] Transform _contentScrollViewTr;
 		[SerializeField] GameObject _templateRowPrefab;
 		[SerializeField] GameObject _buttonPrefab;
 		[SerializeField] Button _resetBinding;
 		[SerializeField] Button _saveBinding;
+		[SerializeField] Button _closeBtn;
 
-		void UIIAMapIteration(InputActionMap actionMap)
+		IEnumerator RebindingSystemAnalysis()
 		{
-			this._contentScrollViewTr.clearLeaves();
-			foreach (InputAction action in actionMap.actions)
-			{
-				Transform newRowTr = null;
-				if (action.bindings[0].isComposite == false)
-				{
-					newRowTr = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr).transform;
-					newRowTr.clearLeaves();
-					GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>().setBtnTxt(action.name);
-				}
-				for (int i = 0; i < action.bindings.Count; i++)
-				{
-					InputBinding binding = action.bindings[i];
-
-					if (binding.isComposite)
-					{
-						LOG.AddLog($"  Binding[{i}]: COMPOSITE '{binding.name}'");
-						continue;
-					}
-					if (binding.isPartOfComposite)
-					{
-						// do nothing
-						continue;
-					}
-
-					// Create button with rebinding functionality
-					Button btn = GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>();
-					btn.setBtnTxt(binding.GetDisplayString());
-
-					InputAction currentAction = action;
-					int currentBindingIndex = i;
-
-					btn.onClick.AddListener(() =>
-					{
-						CancelActiveRebinding();
-						this.StopAllCoroutines();
-						this.StartCoroutine(PerformRebinding(action, currentBindingIndex, btn));
-					});
-
-					LOG.AddLog($"  Binding[{i}]: {binding.effectivePath ?? "EMPTY"}");
-				}
-			}
-
-			LOG.HEnd("=== SIMPLE ITERATION ===");
+			yield return null;
+			this.UIIAMapIteration(this.IA);
 		}
 
+		void UIIAMapIteration(PlayerInputActions IA)
+		{
+			// Clear existing UI
+			this._contentScrollViewTr.clearLeaves();
+
+			// Iterate through ALL action maps
+			foreach (var actionMap in IA.asset.actionMaps)
+			{
+				// Create a header/separator for each action map
+				GameObject headerRow = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr); headerRow.transform.clearLeaves();
+
+				// Create a non-clickable label button for the action map name
+				Button headerBtn = GameObject.Instantiate(this._buttonPrefab, headerRow.transform).GC<Button>();
+				headerBtn.setBtnTxt($"== {actionMap.name.ToUpper()} ==");
+				headerBtn.interactable = false; // Make it non-interactive
+
+				// rebinding buttons
+				foreach (InputAction action in actionMap.actions)
+				{
+					Transform newRowTr = null;
+
+					// do nothing if its composite action
+					if (action.bindings[0].isComposite == true)
+						continue;
+
+					// button to show case action
+					newRowTr = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr).transform; newRowTr.clearLeaves();
+					GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>().setBtnTxt(action.name);
+
+					for (int i = 0; i < action.bindings.Count; i += 1)
+					{
+						InputBinding binding = action.bindings[i];
+
+						if (binding.isComposite)
+						{
+							LOG.AddLog($"  Binding[{i}]: COMPOSITE '{binding.name}'");
+							continue;
+						}
+						if (binding.isPartOfComposite)
+						{
+							continue;
+						}
+
+						// Create button with rebinding functionality
+						Button btn = GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>();
+
+						UpdateButtonText(btn, action, i);
+
+						InputAction currentAction = action;
+						int currentBindingIndex = i;
+
+						btn.onClick.AddListener(() =>
+						{
+							CancelActiveRebinding();
+							this.StopAllCoroutines();
+
+							if (EventSystem.current != null)
+								EventSystem.current.SetSelectedGameObject(null);
+
+							this.StartCoroutine(PerformRebinding(currentAction, currentBindingIndex, btn));
+						});
+
+						LOG.AddLog($"  Binding[{i}]: {binding.effectivePath ?? "EMPTY"}");
+					}
+				}
+			}
+		}
 		IEnumerator PerformRebinding(InputAction action, int bindingIndex, Button button)
 		{
-			PlayerInputActions IA = GameStore.playerIA;
-
 			activeRebindingButton = button;
-			activeRebindingOriginalText = action.bindings[bindingIndex].GetDisplayString();
+			// MODIFY: Store action and binding index instead of text string
+			// We'll use these to get the correct display text when needed
+			activeRebindingOriginalText = null; // Not needed anymore, but keeping for cleanup
 
 			button.setBtnTxt("Press Any key....");
 
 			LOG.H($"Rebinding {action.name}");
 			LOG.AddLog($"Original binding: {action.bindings[bindingIndex].effectivePath}", "");
 
+			// Get the action map that this action belongs to
+			InputActionMap actionMap = action.actionMap;
 			// disable character actionMap for rebinding
-			IA.character.Disable();
+			// actionMap.Disable();
+			IA.Disable();
 
 			bool done = false;
 			bool wasCancelled = false;
@@ -177,14 +206,44 @@ namespace SPACE_CHECK
 
 			activeRebindingOperation = action.PerformInteractiveRebinding(bindingIndex)
 				.WithControlsExcluding("Mouse")
-				.OnMatchWaitForAnother(0.1f)
+				// REMOVE: These don't reliably prevent anyKey binding
+				// .WithControlsExcluding("<Keyboard>/escape")
+				// .WithControlsExcluding("<Keyboard>/backspace")
+				// .WithControlsExcluding("<Keyboard>/delete")
+				// .WithControlsExcluding("<Keyboard>/enter")
+
+				// ADD: Use OnPotentialMatch to intercept BEFORE binding completes
+				.OnPotentialMatch(op =>
+				{
+					// Check if the potential match is one of our cancel keys
+					var control = op.candidates.Count > 0 ? op.candidates[0] : null;
+					if (control != null)
+					{
+						string path = control.path.ToLower();
+
+						// If it's a cancel key, manually cancel the operation
+						if (path.Contains("/escape") ||
+							path.Contains("/backspace") ||
+							path.Contains("/delete") ||
+							path.Contains("/enter") ||
+							path.Contains("/numpadEnter"))
+						{
+							Debug.Log($"Intercepted cancel key: {control.path}".colorTag("orange"));
+							op.Cancel();
+							return;
+						}
+					}
+				})
+
+				.OnMatchWaitForAnother(0.05f)
 				.WithTimeout(10f)
 				.OnComplete((Action<InputActionRebindingExtensions.RebindingOperation>)(op =>
 				{
 					LOG.AddLog($".OnComplete() NewBinding: {action.bindings[bindingIndex].effectivePath}");
 					Debug.Log($".OnComplete() {action.bindings[bindingIndex].effectivePath}".colorTag("lime"));
 
-					button.setBtnTxt(action.bindings[bindingIndex].GetDisplayString());
+					// MODIFY: Use helper method to update button text
+					UpdateButtonText(button, action, bindingIndex);
 
 					if (EventSystem.current != null)
 						EventSystem.current.SetSelectedGameObject(null);
@@ -197,6 +256,8 @@ namespace SPACE_CHECK
 
 					try
 					{
+						// completed -> op.Dispose()
+						// canceled -> op.Cancel()
 						op?.Dispose();
 					}
 					catch (Exception e)
@@ -209,7 +270,8 @@ namespace SPACE_CHECK
 					LOG.AddLog(".OnCancel() with cancel key");
 					Debug.Log(".OnCancel()".colorTag("lime"));
 
-					button.setBtnTxt(action.bindings[bindingIndex].GetDisplayString());
+					// MODIFY: Use helper method to restore button text based on current binding state
+					UpdateButtonText(button, action, bindingIndex);
 
 					if (EventSystem.current != null)
 						EventSystem.current.SetSelectedGameObject(null);
@@ -235,11 +297,9 @@ namespace SPACE_CHECK
 			// Manual cancellation check for multiple keys
 			while (!done)
 			{
-				// Check each cancel key manually
 				foreach (string cancelPath in cancelKeys)
 				{
-					// cancel can also be done via keys
-					if (IsCancelKeyPressed(cancelPath))
+					if (IsCancelKeyPressed(cancelPath)) // not required since the input leading to cancel are intercepted in Potential Match which fires before OnComplete, or OnCancel
 					{
 						Debug.Log($"Cancel key pressed: {cancelPath}".colorTag("yellow"));
 						activeRebindingOperation?.Cancel();
@@ -250,12 +310,30 @@ namespace SPACE_CHECK
 			}
 
 			// reEnable character actionMap, done with a certain Rebinding/cancelRebinding
-			IA.character.Enable();
+			// actionMap.Enable();
+			IA.Enable();
 
-			if (!wasCancelled)
+			if (wasCancelled == false)
 			{
 				// successfully assigned
 			}
+		}
+
+		#region Helper
+
+		// MODIFY: Add new helper method to update button text based on binding
+		private void UpdateButtonText(Button button, InputAction action, int bindingIndex)
+		{
+			string displayText = action.bindings[bindingIndex].ToDisplayString();
+
+			// If the binding is empty or returns empty string, show "Not Bound"
+			if (string.IsNullOrEmpty(displayText) ||
+				string.IsNullOrEmpty(action.bindings[bindingIndex].effectivePath))
+			{
+				displayText = "Not Bound";
+			}
+
+			button.setBtnTxt(displayText);
 		}
 
 		// Helper method to check if a cancel key is pressed
@@ -296,21 +374,21 @@ namespace SPACE_CHECK
 			actionMap.RemoveAllBindingOverrides();
 			Debug.Log($"Reset all bindings in action map '{actionMap.name}' to defaults".colorTag("cyan"));
 		}
+		#endregion
 
 		/// <summary>
 		/// Reset ALL bindings in the entire InputActionAsset to defaults
 		/// </summary>
 		public void ResetAllBindingsToDefault()
 		{
-			PlayerInputActions IA = GameStore.playerIA;
-
 			// Method 1: Reset the entire asset
 			IA.RemoveAllBindingOverrides();
 
-			Debug.Log("All input bindings reset to defaults!".colorTag("green"));
+			Debug.Log("All input bindings reset to defaults! (note: not saved yet)".colorTag("green"));
 
+			// Do not Save override until save was pressed
 			// Clear saved overrides
-			LOG.SaveGameData(GameDataType.inputKeyBindings, "");
+			// LOG.SaveGameData(GameDataType.inputKeyBindings, "");
 
 			// Refresh the UI
 			StartCoroutine(RebindingSystemAnalysis());
@@ -321,9 +399,9 @@ namespace SPACE_CHECK
 		/// </summary>
 		private void SaveBindings()
 		{
-			PlayerInputActions IA = GameStore.playerIA;
 			string json = IA.SaveBindingOverridesAsJson();
 			LOG.SaveGameData(GameDataType.inputKeyBindings, json);
+
 			Debug.Log("Bindings saved!".colorTag("green"));
 			LOG.AddLog("Saved JSON:", "json");
 			LOG.AddLog(json, "");
@@ -334,7 +412,6 @@ namespace SPACE_CHECK
 		/// </summary>
 		public void LoadSavedBindings()
 		{
-			PlayerInputActions IA = GameStore.playerIA;
 			// Assuming you have a method to load the saved JSON
 			string savedJson = LOG.LoadGameData(GameDataType.inputKeyBindings);
 
@@ -347,11 +424,13 @@ namespace SPACE_CHECK
 
 		private void OnDisable()
 		{
+			Debug.Log(C.method("OnDisable", this, "red"));
 			CancelActiveRebinding();
 		}
 
 		private void OnDestroy()
 		{
+			Debug.Log(C.method("OnDestroy", this, "red"));
 			CancelActiveRebinding();
 		}
 	}

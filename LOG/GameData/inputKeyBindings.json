@@ -1,1 +1,19 @@
-{"bindings":[{"action":"character/shoot","id":"3dd382c3-36a6-4564-be2b-dfb6411e1810","path":"<Keyboard>/numpad0","interactions":"null","processors":"null"}]}
+{
+    "bindings":
+    [
+        {
+            "action": "character/jump",
+            "id": "7f6809ef-8604-43f4-a20a-da8399c42553",
+            "path": "<Keyboard>/1",
+            "interactions": "null",
+            "processors": "null"
+        },
+        {
+            "action": "car/brake",
+            "id": "a0540bcd-530d-4fc2-b28d-ebf786606fcc",
+            "path": "<Keyboard>/2",
+            "interactions": "null",
+            "processors": "null"
+        }
+    ]
+}
