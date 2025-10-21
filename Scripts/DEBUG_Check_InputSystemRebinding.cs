@@ -9,14 +9,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+
 using SPACE_UTIL;
 using SPACE_SYNTAX;
 
+// checksum
 namespace SPACE_CHECK
 {
 	public class DEBUG_Check_InputSystemRebinding : MonoBehaviour
 	{
-		PlayerInputActions IA;
+		#region SEEK
 		// Track the active rebinding operation and button
 		private InputActionRebindingExtensions.RebindingOperation activeRebindingOperation;
 		private Button activeRebindingButton;
@@ -28,13 +30,40 @@ namespace SPACE_CHECK
 			"<Keyboard>/escape",
 			"<Keyboard>/backspace",
 			"<Keyboard>/delete",
-		};
+		}; 
+		#endregion
 
 		private void Awake()
 		{
 			// Debug.Log(C.method("Awake", this, "white"));
 		}
 
+		[TextArea(minLines: 22, maxLines: 24)]
+		[SerializeField] string README = $@"# file structure: 
+UIRebindingSystem( -> Attach {typeof(DEBUG_Check_InputSystemRebinding).Name}.cs to UIRebindingSystem )
+	template--scroll_view/viewport/content
+		template--row
+			action name button(0)
+			binding button(1)
+			binding button(2)
+			.
+			.
+	save / reset [panel]
+		start button
+		save button
+	close button [button]
+
+# reference [serializeField]
+- template -- button Prefab
+- contentHolder (got contentSizeFitter, VerticalLayoutGroup components Attached)
+- template -- row Prefab
+- save, reset, close window button
+
+# make sure: 
+- There is PlayerInputActions.cs generated from inputAction
+- GameStore.playerIA shall lead to one of its instance";
+
+		PlayerInputActions IA;
 		private void OnEnable()
 		{
 			Debug.Log(C.method("OnEnable", this, "white"));
@@ -102,6 +131,7 @@ namespace SPACE_CHECK
 			yield break;
 		}
 
+		[Header("templateUI/UI elem reference")]
 		[SerializeField] Transform _contentScrollViewTr;
 		[SerializeField] GameObject _templateRowPrefab;
 		[SerializeField] GameObject _buttonPrefab;
@@ -424,13 +454,12 @@ namespace SPACE_CHECK
 
 		private void OnDisable()
 		{
-			Debug.Log(C.method("OnDisable", this, "red"));
+			Debug.Log(C.method("OnDisable", this, "orange"));
 			CancelActiveRebinding();
 		}
-
 		private void OnDestroy()
 		{
-			Debug.Log(C.method("OnDestroy", this, "red"));
+			Debug.Log(C.method("OnDestroy", this, "orange"));
 			CancelActiveRebinding();
 		}
 	}

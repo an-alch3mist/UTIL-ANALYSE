@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7912953308417536872}
   - component: {fileID: 7912953308417536873}
   m_Layer: 5
-  m_Name: template --row
+  m_Name: pftemplate --row
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
