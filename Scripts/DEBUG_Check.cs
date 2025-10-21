@@ -22,7 +22,7 @@ namespace SPACE_CHECK
 
 		private void Start()
 		{
-			PlayerInputActions IA = GameStore.PlayerIA;
+			PlayerInputActions IA = GameStore.playerIA;
 			// Load from saved JSON Data >>
 			// IA.LoadBindingOverridesFromJson(LOG.LoadGame);
 			// << Load from saved JSON Data
@@ -54,7 +54,7 @@ namespace SPACE_CHECK
 		IEnumerator RebindingSystemAnalysis()
 		{
 			#region rebind system -> works
-			PlayerInputActions IA = GameStore.PlayerIA;
+			PlayerInputActions IA = GameStore.playerIA;
 			// Load from saved JSON Data >>
 			// IA.LoadBindingOverridesFromJson(/* load from saved game data */);
 			// << Load from saved JSON Data

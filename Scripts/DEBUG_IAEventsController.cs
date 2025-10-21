@@ -11,7 +11,7 @@ public class DEBUG_IAEventsController : MonoBehaviour
 	{
 		Debug.Log(("Awake(): " + this).colorTag("orange"));
 		// this.IA = new PlayerInputActions();
-		this.IA = GameStore.PlayerIA;
+		this.IA = GameStore.playerIA;
 		this.InitIAEvents();
 	}
 

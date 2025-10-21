@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 using SPACE_UTIL;
@@ -20,6 +21,21 @@ for InputActions:  initialize instance, initIAEvents can be done later(enable/di
 
 	private void InitGameStore()
 	{
-		GameStore.PlayerIA = new PlayerInputActions(); // InitIA can be done Later
+		GameStore.playerIA = new PlayerInputActions(); // InitIA can be done Later
+		this.TryOverideLoadPlayerIA();
+	}
+
+	private void TryOverideLoadPlayerIA()
+	{
+		try
+		{
+			Debug.Log($"success parsing {GameDataType.inputKeyBindings} loaded IA with overiden bindings".colorTag("lime"));
+			// Load from Saved GameData
+			GameStore.playerIA.LoadBindingOverridesFromJson(LOG.LoadGameData(GameDataType.inputKeyBindings));
+		}
+		catch (Exception)
+		{
+			Debug.Log($"error parsing {GameDataType.inputKeyBindings} so loaded default IA".colorTag("red"));
+		}
 	}
 }
