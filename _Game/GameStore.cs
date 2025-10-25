@@ -25,9 +25,11 @@ public class PlayerStats
 		experience = 0;
 	}
 
+	// just to log >>
 	public override string ToString()
 	{
 		return $"name: {this.playerName}, level: {this.level}";
 		// return base.ToString();
 	}
+	// << just to log
 }
