@@ -13,7 +13,31 @@ using SPACE_UTIL;
 
 namespace SPACE_CHECK
 {
-	public class DEBUG_Check : MonoBehaviour
+	public class DEBUG_Check: MonoBehaviour
+	{
+		private void Update()
+		{
+			if(INPUT.M.InstantDown(0))
+			{
+				StopAllCoroutines();
+				StartCoroutine(STIMULATE());
+			}
+		}
+
+		IEnumerator STIMULATE()
+		{
+			#region framRate
+			yield return null;
+			#endregion
+
+			//
+			LOG.AddLog(this.gameObject.ToJson());
+
+			this.gameObject.GC<DEBUG_Check>().NameStartsWith("clear").gameObject.clearLeaves();
+		}
+	}
+
+	public class DEBUG_Check_UIRebindingSystem_ItWorks : MonoBehaviour
 	{
 		private void Awake()
 		{
@@ -247,5 +271,4 @@ namespace SPACE_CHECK
 		} 
 		#endregion
 	}
-
 }
