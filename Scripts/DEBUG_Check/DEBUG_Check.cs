@@ -24,6 +24,8 @@ namespace SPACE_CHECK
 			}
 		}
 
+		[SerializeField] GameObject pfBullet;
+		[SerializeField] Sprite towerSprite;
 		IEnumerator STIMULATE()
 		{
 			#region framRate
@@ -31,9 +33,47 @@ namespace SPACE_CHECK
 			#endregion
 
 			//
-			LOG.AddLog(this.gameObject.ToJson());
+			Tower tower = new Tower(this.transform, this.pfBullet, this.towerSprite);
+			LOG.AddLog(tower.ToJson());
 
-			this.gameObject.GC<DEBUG_Check>().NameStartsWith("clear").gameObject.clearLeaves();
+			// this.gameObject.GC<DEBUG_Check>().NameStartsWith("clear").gameObject.clearLeaves();
+		}
+	}
+
+	public enum TowerType
+	{
+		cannon,
+		catapult,
+	}
+
+	public enum TowerTargetType
+	{
+		mostHealth,
+		mostSpeed,
+		mostArmour,
+		leastHealth,
+		leastSpeed,
+		leastArmour,
+	}
+
+	[System.Serializable]
+	public class Tower
+	{
+		public v2 pos= new v2(10, 10);
+		public TowerType towerType = TowerType.cannon;
+		public Transform bulletPoint;
+		public Transform currTr;
+		public GameObject prefabBullet;
+		public Sprite spriteRefForUI;
+		public float fireInterval = 1f;
+
+		public TowerTargetType primaryTowerTargetType, secondaryTowerTargetType;
+
+		public Tower(Transform transform, GameObject pfBullet, Sprite spriteTower)
+		{
+			this.bulletPoint = this.currTr = transform;
+			this.spriteRefForUI = spriteTower;
+			this.prefabBullet = pfBullet;
 		}
 	}
 
@@ -222,7 +262,7 @@ namespace SPACE_CHECK
 					// GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>().setBtnTxt(binding.effectivePath);
 
 					// NEW
-					GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>().setBtnTxt(binding.GetDisplayString());
+					GameObject.Instantiate(this._buttonPrefab, newRowTr).GCLeaf<Button>().setBtnTxt(binding.GetDisplayString());
 
 					// This is a regular binding
 					LOG.AddLog($"  Binding[{i}]: {binding.effectivePath ?? "EMPTY"}");
