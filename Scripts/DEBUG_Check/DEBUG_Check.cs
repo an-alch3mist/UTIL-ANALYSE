@@ -13,17 +13,17 @@ using SPACE_UTIL;
 
 namespace SPACE_CHECK
 {
-	public class DEBUG_Check: MonoBehaviour
+	public class DEBUG_Check : MonoBehaviour
 	{
 		private void Update()
 		{
-			if(INPUT.M.InstantDown(0))
+			if (INPUT.M.InstantDown(0))
 			{
 				StopAllCoroutines();
 				StartCoroutine(STIMULATE());
 			}
 		}
-
+	
 		[SerializeField] GameObject pfBullet;
 		[SerializeField] Sprite towerSprite;
 		IEnumerator STIMULATE()
@@ -32,11 +32,32 @@ namespace SPACE_CHECK
 			yield return null;
 			#endregion
 
-			//
-			Tower tower = new Tower(this.transform, this.pfBullet, this.towerSprite);
-			LOG.AddLog(tower.ToJson());
+			// Tower tower = new Tower();
+			// LOG.AddLog(tower.ToJson());
 
-			// this.gameObject.GC<DEBUG_Check>().NameStartsWith("clear").gameObject.clearLeaves();
+			//GameObject gameObject = R.get<GameObject>(ResourceType.prefab__proto__cube);
+			// R.preloadAll(C.getEnumValues<ResourceType>()); // error
+			// R.preloadAll<ResourceType>(); // error
+
+			// var clip = R.get<AudioClip>(ResourceType.audio__awavb); // error
+			// var clip = R.get<AudioClip>("audio/awavb.wav"); // error
+
+			// var clip = Resources.Load<GameObject>("cube"); // error
+			// var clip = Resources.Load<GameObject>("prefab/proto/cube"); // works
+			// var clip = Resources.Load<Material>("mat/metal"); // works
+			// var clip = Resources.Load<TextAsset>("data/level"); // works
+
+			// var clip = Resources.Load<AudioClip>("audio/awavb"); // ✅ CORRECT - no extension
+			// LOG.AddLog(clip.name);
+			// LOG.AddLog(R.getHeirarchy());
+
+			R.preloadAll(C.getEnumValues<ResourceType>().map(en => (object)en).ToArray());
+			LOG.AddLog(R.getHeirarchy(), syntaxType: " ");
+			LOG.AddLog(R.stats(), syntaxType: " ");
+
+			//
+			string name = R.get<GameObject>(ResourceType.prefab__proto__cube).name;
+			Debug.Log(name);
 		}
 	}
 
@@ -56,259 +77,24 @@ namespace SPACE_CHECK
 		leastArmour,
 	}
 
+	public enum ResourcePrefabType
+	{
+		bullet__sphere,
+		bullet__arrow,
+		sprite__cannon,
+	}
+
 	[System.Serializable]
 	public class Tower
 	{
-		public v2 pos= new v2(10, 10);
+		public v2 pos = new v2(10, 10);
 		public TowerType towerType = TowerType.cannon;
-		public Transform bulletPoint;
-		public Transform currTr;
-		public GameObject prefabBullet;
-		public Sprite spriteRefForUI;
+		public Vector3 bulletPoint; // public Transform bulletPoint;
+		public Vector3 currTr; // public Transform currTr;
+		public ResourcePrefabType prefabBullet; // public GameObject prefabBullet;
+		public ResourcePrefabType spriteRefForUI; // public Sprite spriteRefForUI;
 		public float fireInterval = 1f;
-
-		public TowerTargetType primaryTowerTargetType, secondaryTowerTargetType;
-
-		public Tower(Transform transform, GameObject pfBullet, Sprite spriteTower)
-		{
-			this.bulletPoint = this.currTr = transform;
-			this.spriteRefForUI = spriteTower;
-			this.prefabBullet = pfBullet;
-		}
-	}
-
-	public class DEBUG_Check_UIRebindingSystem_ItWorks : MonoBehaviour
-	{
-		private void Awake()
-		{
-			Debug.Log(C.method("Awake", this, "white"));
-		}
-
-		private void Start()
-		{
-			PlayerInputActions IA = GameStore.playerIA;
-			// Load from saved JSON Data >>
-			// IA.LoadBindingOverridesFromJson(LOG.LoadGame);
-			// << Load from saved JSON Data
-		}
-
-		private void Update()
-		{
-			if (INPUT.M.InstantDown(0))
-			{
-				StopAllCoroutines();
-				StartCoroutine(STIMULATE());
-			}
-		}
-
-		[SerializeField] InputActionAsset _IAAsset;
-
-		[Header("just to log")]
-		[SerializeField] PlayerStats _playerStats;
-		// custom key rebind
-		IEnumerator STIMULATE()
-		{
-			yield return null;
-
-			// it works
-			yield return RebindingSystemAnalysis();
-			yield break;
-		}
-
-		IEnumerator RebindingSystemAnalysis()
-		{
-			#region rebind system -> works
-			PlayerInputActions IA = GameStore.playerIA;
-			// Load from saved JSON Data >>
-			// IA.LoadBindingOverridesFromJson(/* load from saved game data */);
-			// << Load from saved JSON Data
-
-			var jumpAction = IA.character.jump;
-			int bindingIndex = 1;
-
-			LOG.H("Before Override");
-			LOG.AddLog(IA.SaveBindingOverridesAsJson(), "json");
-			LOG.AddLog($"Original binding: {jumpAction.bindings[bindingIndex].effectivePath}", "");
-			LOG.HEnd("Before Override");
-
-			// Disable
-			IA.character.Disable();
-
-			bool done = false;
-			Debug.Log("Press any key to rebind (ESC to cancel)...".colorTag("lime"));
-			jumpAction.PerformInteractiveRebinding(bindingIndex)
-				.WithControlsExcluding("Mouse")
-				.WithCancelingThrough("<Keyboard>/escape")
-				.WithTimeout(10f)
-				.OnComplete((Action<InputActionRebindingExtensions.RebindingOperation>)(op =>
-				{
-					LOG.H("Interactive After New Rebinding");
-					LOG.AddLog((string)$".OnComplete() NewBinding: {jumpAction.bindings[(int)bindingIndex].effectivePath}");
-					LOG.HEnd("Interactive After New Rebinding");
-
-					Debug.Log($".OnComplete() {jumpAction.bindings[bindingIndex].effectivePath}".colorTag("lime"));
-					done = true;
-					op.Dispose();
-				}))
-				.OnCancel((Action<InputActionRebindingExtensions.RebindingOperation>)(op =>
-				{
-					LOG.AddLog((string)".OnCancel() with esc");
-					Debug.Log(".OnCancel()".colorTag("lime"));
-					done = true;
-					op.Dispose();
-				}))
-				.Start();
-
-			// Wait for user input
-			while (!done)
-				yield return null;
-
-			// Re-enable
-			IA.character.Enable();
-
-			LOG.H("After Binding override JSON");
-			LOG.AddLog(IA.SaveBindingOverridesAsJson(), "json");
-			LOG.HEnd("After Binding overide JSON");
-			#endregion
-
-			this.SimpleIAMapIteration(IA.character.Get());
-			this.UIIAMapIteration(IA.character.Get());
-		}
-		/// <summary>
-		/// Simple iteration through all actions and their bindings
-		/// </summary>
-		void SimpleIAMapIteration(InputActionMap actionMap)
-		{
-			LOG.H("=== SIMPLE ITERATION ===");
-
-			// Iterate through all actions in the map
-			foreach (InputAction action in actionMap.actions)
-			{
-				LOG.AddLog($"Action: {action.name}");
-
-				// Iterate through bindings for this action
-				// Note: bindings is a ReadOnlyArray
-				for (int i = 0; i < action.bindings.Count; i++)
-				{
-					InputBinding binding = action.bindings[i];
-
-					// Skip composite bindings (they're containers for other bindings)
-					if (binding.isComposite)
-					{
-						LOG.AddLog($"  Binding[{i}]: COMPOSITE '{binding.name}'");
-						continue;
-					}
-
-					// Skip part of composite bindings if you only want the main bindings
-					if (binding.isPartOfComposite)
-					{
-						LOG.AddLog($"  Binding[{i}]: Part of composite - {binding.name} = {binding.effectivePath}");
-						continue;
-					}
-
-					// This is a regular binding
-					LOG.AddLog($"  Binding[{i}]: {binding.effectivePath ?? "EMPTY"}");
-				}
-			}
-
-			LOG.HEnd("=== SIMPLE ITERATION ===");
-		}
-
-		[SerializeField] Transform _contentScrollViewTr;
-		[SerializeField] GameObject _templateRowPrefab;
-		[SerializeField] GameObject _buttonPrefab;
-
-		void UIIAMapIteration(InputActionMap actionMap)
-		{
-			// LOG.H("=== SIMPLE ITERATION ===");
-			this._contentScrollViewTr.clearLeaves();
-
-			// Iterate through all actions in the map
-			foreach (InputAction action in actionMap.actions)
-			{
-				Transform newRowTr = null;
-				if (action.bindings[0].isComposite == false)
-				{
-					newRowTr = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr).transform;
-					newRowTr.clearLeaves();
-
-					GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>().setBtnTxt(action.name);
-				}
-
-				// LOG.AddLog($"Action: {action.name}");
-
-				// Iterate through bindings for this action
-				// Note: bindings is a ReadOnlyArray
-				for (int i = 0; i < action.bindings.Count; i++)
-				{
-					InputBinding binding = action.bindings[i];
-
-					// Skip composite bindings (they're containers for other bindings)
-					if (binding.isComposite)
-					{
-						LOG.AddLog($"  Binding[{i}]: COMPOSITE '{binding.name}'");
-						continue;
-					}
-
-					// Skip part of composite bindings if you only want the main bindings
-					if (binding.isPartOfComposite)
-					{
-						// do nothing
-						// LOG.AddLog($"  Binding[{i}]: Part of composite - {binding.name} = {binding.effectivePath}");
-						continue;
-					}
-
-					// OLD
-					// GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>().setBtnTxt(binding.effectivePath);
-
-					// NEW
-					GameObject.Instantiate(this._buttonPrefab, newRowTr).GCLeaf<Button>().setBtnTxt(binding.GetDisplayString());
-
-					// This is a regular binding
-					LOG.AddLog($"  Binding[{i}]: {binding.effectivePath ?? "EMPTY"}");
-				}
-			}
-
-			LOG.HEnd("=== SIMPLE ITERATION ===");
-		}
-
-
-		#region Check LOG(SaveLog(), LoadGame<>(), LoadGame(), SaveGame())
-		private void Check_LOG()
-		{
-			// 0. LOG.SaveLog(str, format) // where str: T.ToJson() or T.ToString() or IEnumerable<T>.ToTable() if  IEnumerable<T>
-			List<PlayerStats> STATS = new List<PlayerStats>()
-			{
-				new PlayerStats(),
-				new PlayerStats(),
-				new PlayerStats(),
-				new PlayerStats(),
-				new PlayerStats(),
-			};
-			//
-			LOG.AddLog(STATS.ToTable(toString: true, name: "LIST<>")); // Checked
-
-			// 1. LOG.SaveGame(enum, T.ToJson(pretify: true))
-			// LOG_SEEK.SaveGameData(GameDataType.playerStats, new PlayerStats() { playerName = "somthng", level = 10 }.ToJson(pretify: true)); // Checked
-			// LOG.SaveGameData(GameDataType.playerStats, new PlayerStats() { playerName = "somthng", level = (int)1e7 }.ToJson(pretify: true)); // Checked
-
-			// 2. LOG.LoadGame<T>(enum)
-			// PlayerStats playerStats = LOG_SEEK.LoadGameData<PlayerStats>(GameDataType.playerStats); // Checked
-			// PlayerStats playerStats = LOG.LoadGameData<PlayerStats>(GameDataType.playerStats); // Checked
-			// this._playerStats = playerStats;
-
-			// 3. LOG.LoadGame(enum)
-			// LOG_SEEK.SaveLog(LOG_SEEK.LoadGameData(GameDataType.playerStats), "json"); // Checked
-			LOG.AddLog(LOG.LoadGameData(GameDataType.playerStats), "json"); // checked
-
-
-			// Data_0 data_0 = new Data_0() { i = 100 };
-			// LOG.SaveGameData(GameDataType.playerStats, data_0.ToJson());
-			// string data_0__json = LOG.LoadGameData(GameDataType.playerStats);
-			// Debug.Log(C.FromJson<Data_0>(data_0__json));
-
-			// this.LOG_SEEK_CHECK();
-		} 
-		#endregion
+	
+		public TowerTargetType primaryTowerTargetType = TowerTargetType.leastArmour, secondaryTowerTargetType = TowerTargetType.leastHealth;
 	}
 }

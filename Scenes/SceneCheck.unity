@@ -706,6 +706,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2088738073}
   - component: {fileID: 2088738074}
+  - component: {fileID: 2088738075}
   m_Layer: 0
   m_Name: Check
   m_TagString: Untagged
@@ -740,4 +741,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   testKey: 32
-  runOnStart: 1
+  runOnStart: 0
+--- !u!114 &2088738075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088738072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9b2fd9e5c9509b41b83ba6bb88ea7b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pfBullet: {fileID: 2088738072}
+  towerSprite: {fileID: 0}
