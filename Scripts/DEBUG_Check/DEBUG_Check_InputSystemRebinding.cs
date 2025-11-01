@@ -148,13 +148,13 @@ UIRebindingSystem( -> Attach {typeof(DEBUG_Check_InputSystemRebinding).Name}.cs 
 		void UIIAMapIteration(PlayerInputActions IA)
 		{
 			// Clear existing UI
-			this._contentScrollViewTr.clearLeaves();
+			this._contentScrollViewTr.destroyLeaves();
 
 			// Iterate through ALL action maps
 			foreach (var actionMap in IA.asset.actionMaps)
 			{
 				// Create a header/separator for each action map
-				GameObject headerRow = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr); headerRow.transform.clearLeaves();
+				GameObject headerRow = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr); headerRow.transform.destroyLeaves();
 
 				// Create a non-clickable label button for the action map name
 				Button headerBtn = GameObject.Instantiate(this._buttonPrefab, headerRow.transform).GC<Button>();
@@ -171,7 +171,7 @@ UIRebindingSystem( -> Attach {typeof(DEBUG_Check_InputSystemRebinding).Name}.cs 
 						continue;
 
 					// button to show case action
-					newRowTr = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr).transform; newRowTr.clearLeaves();
+					newRowTr = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr).transform; newRowTr.destroyLeaves();
 					GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>().setBtnTxt(action.name);
 
 					for (int i = 0; i < action.bindings.Count; i += 1)
@@ -608,7 +608,7 @@ UIRebindingSystem( -> Attach {typeof(DEBUG_Check_InputSystemRebinding).Name}.cs 
 		void UIIAMapIteration(InputActionMap actionMap)
 		{
 			// LOG.H("=== SIMPLE ITERATION ===");
-			this._contentScrollViewTr.clearLeaves();
+			this._contentScrollViewTr.destroyLeaves();
 
 			// Iterate through all actions in the map
 			foreach (InputAction action in actionMap.actions)
@@ -617,7 +617,7 @@ UIRebindingSystem( -> Attach {typeof(DEBUG_Check_InputSystemRebinding).Name}.cs 
 				if (action.bindings[0].isComposite == false)
 				{
 					newRowTr = GameObject.Instantiate(this._templateRowPrefab, this._contentScrollViewTr).transform;
-					newRowTr.clearLeaves();
+					newRowTr.destroyLeaves();
 
 					GameObject.Instantiate(this._buttonPrefab, newRowTr).GC<Button>().setBtnTxt(action.name);
 				}

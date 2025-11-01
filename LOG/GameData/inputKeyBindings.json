@@ -1,1 +1,1 @@
-{"bindings":[{"action":"character/jump","id":"7867cf55-791d-49e1-ab54-29eeae8bc9aa","path":"<Keyboard>/a","interactions":"null","processors":"null"},{"action":"character/shoot","id":"200b8314-3a14-43c3-8da1-47679852fe68","path":"<Keyboard>/b","interactions":"null","processors":"null"}]}
+{"bindings":[{"action":"character/jump","id":"017c8df9-8d70-45dc-a2ba-1228fd5c5aaf","path":"<Keyboard>/q","interactions":"null","processors":"null"},{"action":"character/shoot","id":"d8eb9f16-a0f3-43d9-8091-6046061c70d6","path":"<Keyboard>/e","interactions":"null","processors":"null"}]}

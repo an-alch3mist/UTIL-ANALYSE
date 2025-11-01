@@ -315,8 +315,8 @@ namespace SPACE_CHECK
 			Assert(tempParent.transform.childCount == 3,
 				"Should have 3 children before clearing");
 
-			// Test 2: Clear leaves
-			tempParent.clearLeaves();
+			// Test 2: Destroy leaves
+			tempParent.destroyLeaves();
 
 			// Wait a frame for destruction
 			StartCoroutine(VerifyClearLeaves(tempParent));
