@@ -10,6 +10,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 //
 using SPACE_UTIL;
+using SPACE_GAME;
 
 namespace SPACE_CHECK
 {
