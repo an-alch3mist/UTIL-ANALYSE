@@ -55,7 +55,6 @@ namespace SPACE_CHECK
 			LOG.AddLog(R.getHeirarchy(), syntaxType: " ");
 			LOG.AddLog(R.stats(), syntaxType: " ");
 
-			//
 			string name = R.get<GameObject>(ResourceType.prefab__proto__cube).name;
 			Debug.Log(name);
 		}
