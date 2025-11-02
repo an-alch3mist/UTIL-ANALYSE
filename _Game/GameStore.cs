@@ -14,7 +14,7 @@ namespace SPACE_GAME
 
 		private void Awake()
 		{
-			Debug.Log(C.method("Awake", this));
+			Debug.Log(C.methodHere(this));
 			GameStore.IA = _inputActionAsset;
 			this.LoadAll();
 		}
